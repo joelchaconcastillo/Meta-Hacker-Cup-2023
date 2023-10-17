@@ -4,6 +4,7 @@ class SegmentTree{
    vector<pair<int, int>> a;
    int n;
    vector<pair<int, int>>st; 
+   vector<bool>lazy;
 	public:
    SegmentTree(vector<int> &_a){
       this->n=_a.size();
@@ -12,7 +13,8 @@ class SegmentTree{
 	    a[i].first=_a[i];
 	    a[i].second=(_a[i]*1000000006LL)%1000000007LL;
       }
-      st.assign(4*n+1, {INT_MAX, INT_MAX});
+      this->lazy.assign(4*n, false); //this is for either swapping or not..
+      st.assign(4*n, {INT_MAX, INT_MAX});
       build(1, 0, n-1);
    }
    pair<int, int> merge(pair<int, int> &seg1, pair<int, int> &seg2){
@@ -40,39 +42,31 @@ class SegmentTree{
    void update(int i, int j){
        this->update(1, 0, a.size()-1, i, j);
    }
+   void propagate(int id, int l, int r){
+      if(lazy[id]){
+//        swap(st[id].first, st[id].second);
+        swap(a[l].first, a[r].second);
+	lazy[id]=false;
+      }
+      return;
+   }
    void update(int id, int l, int r, int i, int j){
+       propagate(id, l, r);
        if(j<l || i>r)return;
-       if(l==r){
-       	    swap(st[id].first, st[id].second);
-       	    swap(a[l].first, a[r].second);
-	    return;
+       if( i>=l && j<=r){
+	 lazy[id] = true;
+	 return;
        }
        int m = (l+r)/2;
        update(id*2, l, m, i, j);
        update(id*2+1, m+1, r, i, j);
        st[id]=merge(st[id*2], st[id*2+1]);
    }
-
-//   void update(int id, int l, int r, int i, int j){
-//       if(j<l || i>r)return ;//{INT_MAX, INT_MAX};
-//       if(l==r){
-//       	    swap(a[l].first, a[r].second);
-//	    return;
-//       }
-//       int m = (l+r)/2;
-//       update(id*2, l, m, i, j);
-//       update(id*2+1, m+1, r, i, j);
-//       st[id]=merge(st[id*2], st[id*2+1]);
-//   }
    int query(int i ,int j){
-//	   cout<<"---> ";
-//	   for(auto i:a)cout <<i.first<<" ";
-//	   cout<<endl;
-       auto v = query(1, 0, a.size()-1, i, j).first+1;
- //      cout<<v<<endl;
-       return v;
+       return query(1, 0, a.size()-1, i, j).first+1;
    }
    pair<int, int> query(int id, int l, int r, int i, int j){
+       propagate(id, l, r);
        if(j<l || i>r)return {INT_MAX, INT_MAX};
        if(i>=l && j<=r) return st[id];
        int m=(l+r)/2;
