@@ -56,6 +56,7 @@ class SegmentTree{
    }
    void update(int id, int l, int r, int i, int j){
        propagate(id, l, r);
+       cout <<st[id].first.first<<" "<<id<<endl;
        if(j<l || i>r)return;
        if( i<=l && j>=r){
 	 lazy[id] = true;
@@ -98,7 +99,9 @@ int main(){
 	 cin>>l>>r;
 	 st.update(l-1, r-1);
 	 res +=st.query(0, N-1);
+	 cout<<res<<endl;
       }
+	 return 0;
       cout <<"Case #"<<t<<": "<<res<<endl;
    }
    return 0;
